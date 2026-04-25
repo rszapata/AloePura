@@ -1,0 +1,52 @@
+# ─── Dependencies ─────────────────────────────────────
+node_modules/
+.pnp
+.pnp.js
+
+# ─── Build output ─────────────────────────────────────
+dist/
+dist-ssr/
+build/
+.next/
+.cache/
+
+# ─── Env / secrets ────────────────────────────────────
+# Reglas:
+#   .env                 → secretos reales (NUNCA commit)
+#   .env.local           → overrides locales del dev
+#   .env.example         → SÍ se commitea (template documentado)
+#   .env.development     → SÍ se commitea (defaults no-secretos para Vite)
+.env
+.env.local
+.env.*.local
+*.pem
+
+# ─── Logs ─────────────────────────────────────────────
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# ─── Coverage ─────────────────────────────────────────
+coverage/
+*.lcov
+.nyc_output/
+
+# ─── Editor / OS ──────────────────────────────────────
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.DS_Store
+Thumbs.db
+
+# ─── Project-specific ─────────────────────────────────
+# Carpetas de planificación interna (notas privadas, no público)
+.claude/
