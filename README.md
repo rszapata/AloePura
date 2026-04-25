@@ -1,101 +1,180 @@
-# Stockroom — Gestión multi-cuenta MercadoLibre
+# 🌿 AloePura — E-commerce Full-Stack
 
-Plataforma web self-hosted para gestionar inventario, ventas y cobros en múltiples cuentas de MercadoLibre Argentina desde una sola interfaz.
+Tienda online completa construida desde cero con React 19, Node.js y PostgreSQL. Incluye catálogo con filtros, carrito persistente, checkout con pagos reales via Stripe y panel de administración completo.
 
-## ¿Qué resuelve?
+---
 
-MercadoLibre no ofrece panel multi-cuenta ni herramientas para sincronizar stock entre publicaciones idénticas en distintas cuentas. Este proyecto reemplaza el flujo manual (Excel + panel ML por separado) con una app local que centraliza todo.
+## Capturas
 
-## Funcionalidades
+### Inicio
+![Inicio](assets/Index.png)
 
-| Módulo | Descripción |
+### Política de Cookies (RGPD)
+![Cookies RGPD](assets/Cookies_RGPD_UEuropea.png)
+
+### Catálogo de productos
+![Productos](assets/Productos.png)
+
+### Carrito
+![Carrito](assets/Carrito_envio_gratis.png)
+
+### Checkout — Pago con Stripe
+![Pago Stripe](assets/Pago_Stripe.png)
+
+### Mi cuenta — Mis pedidos
+![Mis pedidos](assets/Mi_Cuenta_pedidos.png)
+
+### Panel Admin — Dashboard
+![Panel Admin](assets/Panel_admin.png)
+
+### Panel Admin — Pedidos
+![Admin Pedidos](assets/Admin_Pedidos.png)
+
+---
+
+## Descripción
+
+AloePura es un e-commerce funcional con todo el ciclo de compra implementado: desde la navegación del catálogo hasta la confirmación del pago. El proyecto cubre tanto el lado del cliente como el panel de administración y la integración con servicios externos (Stripe, Cloudinary).
+
+---
+
+## Páginas
+
+| Página | Descripción |
 |---|---|
-| **Dashboard** | KPIs del día, pedidos para despachar (filtrados por estado real de envío) |
-| **Stock & Analytics** | Inventario consolidado, gráficos de rotación, generador de órdenes de compra |
-| **Vinculaciones** | Sincronización automática de stock entre publicaciones equivalentes en distintas cuentas (dry-run + aprobación manual) |
-| **Publicaciones** | Creación y gestión con autocompletado de categorías ML |
-| **Migración** | Duplicación de publicaciones entre cuentas con mapeo de variantes |
-| **Cobros** | Liquidación cada 10 días (fundas vs socios). Cálculo de **costo Flex** parseando el Excel de ML por CP del comprador |
+| **Inicio** | Landing con productos destacados y navegación principal |
+| **Productos** | Catálogo con filtros por categoría, precio y búsqueda |
+| **Contacto** | Formulario de contacto |
+| **Mi cuenta → Mi perfil** | Datos personales del usuario |
+| **Mi cuenta → Mis pedidos** | Historial de órdenes con estado en tiempo real |
+| **Mi cuenta → Preferencias** | Configuración de la cuenta |
+| **Panel Admin** | CRUD completo de productos, pedidos y usuarios (solo rol admin) |
+
+---
 
 ## Stack
 
-- **Backend**: Node.js puro (sin frameworks) — servidor HTTP proxy con whitelist anti-SSRF
-- **Frontend**: HTML5 + Tailwind CSS + Vanilla JS — diseño dark mode, PWA instalable
-- **Scripts**: Python 3.12 + openpyxl — procesamiento de Excel de ventas ML
-- **Auth**: OAuth 2.0 multi-cuenta con refresh automático de tokens
+| Tecnología | Uso |
+|---|---|
+| **React 19** | Frontend con code splitting (React.lazy) |
+| **Node.js + Express** | API REST backend |
+| **PostgreSQL** | Base de datos relacional |
+| **Knex** | Query builder y migraciones |
+| **Stripe** | Pagos (Payment Intents + webhooks) |
+| **Cloudinary** | Almacenamiento y gestión de imágenes |
+| **JWT** | Autenticación con guards por rol |
+
+---
+
+## Funcionalidades destacadas
+
+**Catálogo y carrito**
+- Filtros por categoría, rango de precios y búsqueda en tiempo real
+- Carrito lateral persistente con barra de progreso hacia envío gratis
+
+**Checkout en 3 pasos**
+- Paso 1: Datos de contacto
+- Paso 2: Dirección de envío con normalización para base de datos
+- Paso 3: Pago con Stripe (Payment Intents)
+
+**Pagos con Stripe**
+- Integración completa con Payment Intents
+- Webhooks para confirmar el estado del pago server-side
+- El pedido se confirma solo cuando Stripe valida el cobro
+
+**Autenticación y roles**
+- Registro e inicio de sesión con JWT
+- Guards por rol: `customer` accede a su cuenta, `admin` accede al panel de administración
+- Rutas protegidas en frontend y backend
+
+**Panel de administración**
+- Dashboard con ingresos totales, pedidos, productos activos y clientes
+- CRUD completo de productos con subida de imágenes (signed-upload directo a Cloudinary)
+- Gestión de pedidos con estados: Pendiente, Pagada, Enviada, Reembolsada, Cancelada
+- Administración de usuarios
+
+**Cumplimiento legal**
+- Política de cookies con opciones de aceptar, personalizar y rechazar (RGPD)
+- Política de privacidad y aviso legal
+- Accesibilidad WCAG 2.1 AA
+
+---
 
 ## Instalación
 
 ### Requisitos
 
 - Node.js ≥ 18
-- Python 3.12 + pip
-
-```bash
-pip install openpyxl pandas
-```
+- PostgreSQL
 
 ### Configuración
 
 1. Clonar el repositorio.
-2. Copiar `config.example.json` → `config.json` y completar con tus credenciales ML:
+2. Crear un archivo `.env` en `/server`:
 
-```json
-{
-  "active": "cuenta1",
-  "accounts": [
-    {
-      "id": "cuenta1",
-      "label": "Mi cuenta",
-      "client_id": "TU_APP_ID",
-      "client_secret": "TU_SECRET",
-      "user_id": "",
-      "access_token": "",
-      "refresh_token": ""
-    }
-  ]
-}
+```env
+DATABASE_URL=postgresql://usuario:contraseña@localhost:5432/aloepura
+JWT_SECRET=tu_jwt_secret
+STRIPE_SECRET_KEY=sk_test_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+CLOUDINARY_CLOUD_NAME=...
+CLOUDINARY_API_KEY=...
+CLOUDINARY_API_SECRET=...
 ```
 
-3. Registrar la app en [MercadoLibre Developers](https://developers.mercadolibre.com.ar/) con redirect URI `http://localhost:3000/oauth/callback`.
+> ⚠️ **Nunca subas `.env` a GitHub.** Está incluido en `.gitignore`.
 
-### Ejecutar
+### Ejecutar migraciones
 
 ```bash
-node server.js
+cd server && npx knex migrate:latest
 ```
 
-Abrir [http://localhost:3000](http://localhost:3000).
+### Ejecutar el proyecto
 
-Para autorizar una cuenta ML, ir a `http://localhost:3000/oauth/start`.
+```bash
+# Backend (puerto 4000)
+cd server && npm run dev
 
-## Seguridad
+# Frontend (puerto 5173)
+cd client && npm run dev
+```
 
-- Servidor escucha en `0.0.0.0:3000` por defecto — usar detrás de Cloudflare Tunnel o VPN para acceso remoto seguro.
-- Whitelist de paths ML permitidos (previene uso del token para requests arbitrarios).
-- CSP estricta, HSTS, X-Frame-Options, COOP/CORP en todas las respuestas.
-- Archivos sensibles (`config.json`, `*.json` de datos) bloqueados por el servidor y excluidos del repo.
-
-## Archivos generados localmente (no en repo)
-
-| Archivo | Contenido |
-|---|---|
-| `config.json` | Credenciales OAuth y tokens |
-| `vinculaciones.json` | Grupos de publicaciones vinculadas |
-| `flex_zones.json` | Mapeo CP → zona de envío Flex |
+---
 
 ## Estructura
 
 ```
-server.js              Servidor Node.js (proxy + endpoints propios)
-index.html             Dashboard
-analytics.html         Stock & Analytics
-publicaciones.html     Gestión de publicaciones
-vinculaciones.html     Sincronización de stock multi-cuenta
-migracion.html         Migración entre cuentas
-cobros.html            Liquidaciones y costo Flex
-genera_cobro.py        Script procesamiento Excel ML (cobros)
-genera_orden_compra.py Script generador de órdenes de compra
-flex_cost.py           Script cálculo costo Flex por Excel ML
-sw.js                  Service Worker (PWA)
+aloepura/
+├── client/                  # Frontend React
+│   ├── src/
+│   │   ├── pages/           # index, productos, contacto, cuenta, admin
+│   │   ├── components/      # Componentes reutilizables
+│   │   └── context/         # Estado global (carrito, auth)
+│   └── public/
+├── server/                  # Backend Node.js + Express
+│   ├── routes/              # Productos, pedidos, usuarios, pagos
+│   ├── middleware/          # Auth JWT, guards por rol
+│   ├── db/
+│   │   └── migrations/      # Migraciones Knex
+│   └── index.js
+├── assets/                  # Capturas de pantalla
+└── README.md
 ```
+
+---
+
+## Decisiones técnicas
+
+- **Payment Intents sobre Checkout de Stripe**: permite mayor control sobre el flujo de pago y personalización de la UI sin redirigir al usuario a una página externa.
+- **Webhooks para confirmar pedidos**: el estado del pedido se actualiza server-side solo cuando Stripe confirma el cobro, evitando pedidos confirmados sin pago real.
+- **Signed-upload a Cloudinary**: las imágenes se suben directamente desde el browser a Cloudinary con una firma generada por el servidor, evitando que el API secret quede expuesto en el frontend.
+- **Guards por rol en frontend y backend**: la protección de rutas existe en ambas capas — el frontend para UX, el backend para seguridad real.
+- **Knex para migraciones**: permite versionar los cambios de esquema de la base de datos y reproducir el entorno exacto en cualquier deploy.
+
+---
+
+## Autor
+
+**Rodrigo Nicolás Zapata**  
+[LinkedIn](https://linkedin.com/in/rnzapata) · [GitHub](https://github.com/rnzapata)
